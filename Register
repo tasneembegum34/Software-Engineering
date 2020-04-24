@@ -1,0 +1,176 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+//import java.util.InputMismatchException;
+import java.awt.*;
+import java.sql.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
+public class Register extends JFrame implements ActionListener{
+	JFrame frame;
+	 JLabel name,phno,address,typeofCustomer,profession,setPassword;
+	 JTextField name1,phno1,address1,profession1,setPassword1;
+	 JRadioButton b1,b2,b3;
+	 JPanel panel1,panel2;
+	 JButton submit;
+	 Connection connection;
+	Statement statement;
+	TextArea errorText;
+	String s;
+		public Register() 
+		{
+			 try
+			{
+				Class.forName("oracle.jdbc.driver.OracleDriver");
+			} 
+			catch(Exception e) 
+			{
+				System.err.println("Unable to find and load driver");
+				System.exit(1);
+			}
+			connectToDB();
+		}
+		public void connectToDB() 
+	    {
+			try 
+			{
+			  connection = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:tasneem","tasneem","tasneem");
+			  statement = connection.createStatement();
+
+			} 
+			catch (SQLException connectException) 
+			{
+			  System.out.println(connectException.getMessage());
+			  System.out.println(connectException.getSQLState());
+			  System.out.println(connectException.getErrorCode());
+			  System.exit(1);
+			}
+	    }
+
+		
+	 public void buildGUI()
+	 {
+		 s="";
+		 frame=new JFrame();
+		 name = new JLabel("Name: ");
+		 phno = new JLabel("Phone No: ");
+		 address = new JLabel("Address:   ");
+		 setPassword=new JLabel("Set Password: ");
+		 typeofCustomer  = new JLabel("Enter Type of Customer");
+		 b1 = new JRadioButton("Public person");
+		 b2 = new JRadioButton("Agricultural Student");
+		 b3 = new JRadioButton("Farmer");
+		 profession = new JLabel("Profession: ");
+		 name1 = new JTextField(15);
+		 setPassword1=new JTextField(10);
+		 phno1 = new JTextField(18);
+		 address1 = new JTextField(20);
+		 profession1 = new JTextField(10);
+		 panel1 = new JPanel();
+		 panel2=new JPanel();
+		 submit = new JButton("SUBMIT");
+		 errorText = new TextArea(10, 40);
+		errorText.setEditable(false);
+		panel1.setLayout(new GridLayout(5,2));
+		 panel1.add(name);
+		 panel1.add(name1);
+		 panel1.add(phno);
+		 panel1.add(phno1);
+		 panel1.add(address);
+		 panel1.add(address1);
+		 panel1.add(profession);
+		 panel1.add(profession1);
+		 panel1.add(setPassword);
+		 panel1.add(setPassword1);
+		 
+		 panel2.setLayout(new FlowLayout());
+		 panel2.add(typeofCustomer);
+		 panel2.add(b1);  panel2.add(b2);  panel2.add(b3);
+		 panel2.add(submit);
+		  panel2.add(errorText);
+		   
+		 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 submit.addActionListener(this);
+		 frame.setLayout(new GridLayout(2,1));
+	      frame.add(panel1);
+	      frame.add(panel2);
+	      frame.setTitle("Register here !");
+	      frame.setSize(600,600);
+	      frame.setVisible(true);
+	      b1.addActionListener(this);
+	      b1.setActionCommand("Public");
+	      b2.addActionListener(this);
+	      b2.setActionCommand("Student");
+	      b3.addActionListener(this);
+	      b3.setActionCommand("Farmer");
+	 
+	      
+			submit.addActionListener(new ActionListener() 
+			{
+				public void actionPerformed(ActionEvent e) 
+				{
+					try 
+					{
+					  			  
+					  String query= "INSERT INTO customer VALUES('" + name1.getText() + "'," +  phno1.getText() + ",'"  + profession1.getText() +"','"+address1.getText()+ "','"+setPassword1.getText()+"','"+s+"')";
+					  int i = statement.executeUpdate(query);
+					  errorText.append("\nInserted " + i + " rows successfully");
+					  Login login=new Login();
+					  login.buildGUI();
+					  
+					} 
+					catch (SQLException insertException) 
+					{
+					  displaySQLErrors(insertException);
+					}
+					
+				}
+			});
+		 
+	}
+		private void displaySQLErrors(SQLException e) 
+		{
+			errorText.append("\nSQLException: " + e.getMessage() + "\n");
+			errorText.append("SQLState:     " + e.getSQLState() + "\n");
+			errorText.append("VendorError:  " + e.getErrorCode() + "\n");
+			
+		}
+	 public static void main(String[] args) {
+		 
+		Register l = new Register();
+		
+		  l.addWindowListener(new WindowAdapter(){
+		  public void windowClosing(WindowEvent e) 
+		  {
+			System.exit(0);
+		  }
+		 boolean a=test(true);
+		});
+		
+		 l.buildGUI();
+	 }
+	 public void actionPerformed(ActionEvent ae) {
+	
+			 if(ae.getActionCommand()=="Public")
+				 s="Public";
+			 else if(ae.getActionCommand()=="Student")
+				 s="Student";
+			 else if(ae.getActionCommand()=="Farmer")
+				 s="Farmer";
+	   }
+	
+	 public static boolean test(boolean a)
+	 {
+		 return true;
+	 }
+ }
